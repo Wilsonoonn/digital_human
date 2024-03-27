@@ -1,4 +1,11 @@
 <template>
+  <div>
+    <video id="video" controls style="width: 300px; height: 150px; margin-bottom: 30px;">
+      <source  type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+
+    </div>
     <el-upload class="pop-upload" ref="upload" action="" :file-list="fileList" :auto-upload="false" :multiple="true"
         :on-change="handleChange" :on-remove="handleRemove">
         <template #trigger>
@@ -15,6 +22,7 @@ export default {
     data() {
         return {
             fileList: [],   // 定义一个空数组
+            videoUrl:''
         };
     },
     methods: {
@@ -37,8 +45,6 @@ export default {
                 })
             }
 
-
-
             // 下面的代码将创建一个空的FormData对象:
             const formData = new FormData()
             // 你可以使用FormData.append来添加键/值对到表单里面；
@@ -53,20 +59,18 @@ export default {
                 background: 'rgba(0, 0, 0, 0.7)',
             })
             axios
-                .post('http://172.20.10.3:8888/lip-sync', formData, {
+                .post('http://localhost:8888/lip-sync', formData, {
                     responseType: "blob"
                 })
                 .then(response => {
                     console.log(response)
                     let blob = new Blob([response.data], { type: 'video/mp4' });
-                    let downloadElement = document.createElement("a");
-                    let href = window.URL.createObjectURL(blob); //创建下载的链接
-                    downloadElement.href = href;
-                    downloadElement.download = "result.mp4"; //下载后文件名
-                    document.body.appendChild(downloadElement);
-                    downloadElement.click(); //点击下载
-                    document.body.removeChild(downloadElement); //下载完成移除元素
-                    window.URL.revokeObjectURL(href); //释放掉blob对象
+                    let href = window.URL.createObjectURL(blob); 
+                    const video= document.getElementById('video')
+                    video.src=href
+                    video.load()
+                    video.play()
+                   // window.URL.revokeObjectURL(href); //释放掉blob对象
                     loading.close()
                 })
                 .catch(function (error) { // 请求失败处理
